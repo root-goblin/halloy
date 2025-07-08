@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>File Transfer</title>
+        <title>Logs</title>
 
 
         <!-- Custom HTML head -->
@@ -142,7 +142,7 @@
                         <a href="https://github.com/squidowl/halloy" title="Git repository" aria-label="Git repository">
                             <i id="git-repository-button" class="fa fa-github"></i>
                         </a>
-                        <a href="https://github.com/squidowl/halloy/edit/main/book/src/configuration/file_transfer.md" title="Suggest an edit" aria-label="Suggest an edit">
+                        <a href="https://github.com/squidowl/halloy/edit/main/book/src/configuration/logs.md" title="Suggest an edit" aria-label="Suggest an edit">
                             <i id="git-edit-button" class="fa fa-edit"></i>
                         </a>
 
@@ -171,122 +171,48 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="file_transfer"><a class="header" href="#file_transfer"><code>[file_transfer]</code></a></h1>
-<p>File transfer configuration options.</p>
-<h2 id="save_directory"><a class="header" href="#save_directory"><code>save_directory</code></a></h2>
-<p>Default directory to save files in. If not set, user will see a file dialog.</p>
+                        <h1 id="logs"><a class="header" href="#logs"><code>[logs]</code></a></h1>
+<p>Application-wide actions;  how user actions should be enacted.</p>
+<h1 id="file_level"><a class="header" href="#file_level"><code>file_level</code></a></h1>
+<p>The least urgent (most verbose) log level to record to the log file.
+E.g. a <code>file_level</code> setting of <code>"debug"</code> will record all <code>ERROR</code>, <code>WARN</code>, <code>INFO</code>, and <code>DEBUG</code> messages to the log file.
+The log file is overwritten on each launch (i.e. contains log messages for the last session only).  It can be accessed at:</p>
+<ul>
+<li>Windows: <code>%AppData%\Roaming\halloy\halloy.log</code></li>
+<li>Mac: <code>~/Library/Application Support/halloy/halloy.log</code> or <code>$HOME/.local/share/halloy/halloy.log</code></li>
+<li>Linux: <code>$XDG_DATA_HOME/halloy/halloy.log</code> or <code>$HOME/.local/share/halloy/halloy.log</code></li>
+</ul>
+<blockquote>
+<p>⚠️  Changes to file_level require an application restart to take effect.</p>
+</blockquote>
 <pre><code class="language-toml"># Type: string
-# Values: any string
-# Default: not set
+# Values: "off", "error", "warn", "info", "debug", "trace"
+# Default: "debug"
 
-[file_transfer]
-save_directory = "/Users/halloy/Downloads"
+[logs]
+file_level = "debug"
 </code></pre>
-<h2 id="passive"><a class="header" href="#passive"><code>passive</code></a></h2>
-<p>If true, act as the "client" for the transfer. Requires the remote user act as the <a href="#file_transferserver">server</a>.</p>
-<pre><code class="language-toml"># Type: boolean
-# Values: true, false
-# Default: true
-
-[file_transfer]
-passive = true
-</code></pre>
-<h2 id="timeout"><a class="header" href="#timeout"><code>timeout</code></a></h2>
-<p>Time (in seconds) to wait before timing out a transfer waiting to be accepted.</p>
-<pre><code class="language-toml"># Type: integer
-# Values: any positive integer
-# Default: 300
-
-[file_transfer]
-timeout = 300
-</code></pre>
-<h1 id="file_transferserver"><a class="header" href="#file_transferserver"><code>[file_transfer.server]</code></a></h1>
-<p>This section is <strong>required</strong> if <code>passive = false</code>. One side of the file transfer must
-operate as the "server", who the other user connects with to establish a connection.</p>
-<h2 id="public_address"><a class="header" href="#public_address"><code>public_address</code></a></h2>
-<p>Address advertised to the remote user to connect to.</p>
+<h1 id="pane_level"><a class="header" href="#pane_level"><code>pane_level</code></a></h1>
+<p>The least urgent (most verbose) log level to record to the Logs pane.
+E.g. a <code>pane_level</code> setting of <code>"info"</code> will record all <code>ERROR</code>, <code>WARN</code>, and <code>INFO</code> messages to the Logs pane.
+Log messages that are not recorded to the Logs pane may still be found in the log file.</p>
 <pre><code class="language-toml"># Type: string
-# Values: any string
-# Default: not set
+# Values: "off", "error", "warn", "info", "debug", "trace"
+# Default: "info"
 
-[file_transfer.server]
-public_address = "&lt;some ip&gt;"
-</code></pre>
-<h2 id="bind_address"><a class="header" href="#bind_address"><code>bind_address</code></a></h2>
-<p>Address to bind to when accepting connections.</p>
-<pre><code class="language-toml"># Type: string
-# Values: any string
-# Default: not set
-
-[file_transfer.server]
-bind_address = "&lt;some ip&gt;"
-</code></pre>
-<h2 id="bind_port_first"><a class="header" href="#bind_port_first"><code>bind_port_first</code></a></h2>
-<p>First port in port range to bind to.</p>
-<pre><code class="language-toml"># Type: integer
-# Values: any positive integer
-# Default: not set
-
-[file_transfer.server]
-bind_port_first = 1024
-</code></pre>
-<h2 id="bind_port_last"><a class="header" href="#bind_port_last"><code>bind_port_last</code></a></h2>
-<p>Last port in port range to bind to.</p>
-<pre><code class="language-toml"># Type: integer
-# Values: any positive integer
-# Default: not set
-
-[file_transfer.server]
-bind_port_last = 5000
-</code></pre>
-<h1 id="file_transferauto_accept"><a class="header" href="#file_transferauto_accept"><code>[file_transfer.auto_accept]</code></a></h1>
-<p>Configuration for automatically accepting incoming file transfers.</p>
-<h2 id="enabled"><a class="header" href="#enabled"><code>enabled</code></a></h2>
-<p>If true, automatically accept incoming file transfers. Requires <code>save_directory</code> to be set.</p>
-<pre><code class="language-toml"># Type: boolean
-# Values: true, false
-# Default: false
-
-[file_transfer.auto_accept]
-enabled = false
-</code></pre>
-<h2 id="nicks"><a class="header" href="#nicks"><code>nicks</code></a></h2>
-<p>If true, automatically accept incoming file transfers from these nicks.
-Note <code>auto_accept</code> has to be enabled.</p>
-<pre><code class="language-toml"># Type: array of strings
-# Values: array of any strings
-# Default: []
-
-[file_transfer.auto_accept]
-nicks = ["nick1", "nick2"]
-</code></pre>
-<h2 id="masks"><a class="header" href="#masks"><code>masks</code></a></h2>
-<p>If true, automatically accept incoming file transfers from these nicks. Matches are made against the full nickname (i.e. nickname, username, and hostname in the format <code>nickname!username@hostname</code>). Note <code>auto_accept</code> has to be enabled.</p>
-<div class="warning">
-<p>Use toml multi-line literal strings <code>'''\bfoo'd\b'''</code> when writing a regex. This allows you to write write the regex without
-escaping. You can also use a literal string <code>'\bfoo\b'</code>, but then you can't use <code>'</code> inside the string.</p>
-<p>Without literal strings, you'd have to write the above as <code>"\\bfoo'd\\b"</code></p>
-</div>
-<pre><code class="language-toml"># Type: array of strings
-# Values: array of any strings
-# Default: []
-
-[file_transfer.auto_accept]
-masks = [
-    '''nick!ident@example\.com''',
-    '''.*@foobar\.com'''
-]
+[logs]
+pane_level = "info"
 </code></pre>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../configuration/ctcp.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../configuration/keyboard.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next prefetch" href="../configuration/font.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="../configuration/notifications.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -296,11 +222,11 @@ masks = [
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../configuration/ctcp.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../configuration/keyboard.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next prefetch" href="../configuration/font.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="../configuration/notifications.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>
