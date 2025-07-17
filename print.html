@@ -36,6 +36,7 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "searchindex.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc.js"></script>
@@ -92,10 +93,13 @@
                 sidebar = sidebar || 'visible';
             } else {
                 sidebar = 'hidden';
+                sidebar_toggle.checked = false;
             }
-            sidebar_toggle.checked = sidebar === 'visible';
-            html.classList.remove('sidebar-visible');
-            html.classList.add("sidebar-" + sidebar);
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
         </script>
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
@@ -149,7 +153,12 @@
 
                 <div id="search-wrapper" class="hidden">
                     <form id="searchbar-outer" class="searchbar-outer">
-                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                        <div class="search-wrapper">
+                            <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <i class="fa fa-spinner fa-spin"></i>
+                            </div>
+                        </div>
                     </form>
                     <div id="searchresults-outer" class="searchresults-outer hidden">
                         <div id="searchresults-header" class="searchresults-header"></div>
@@ -268,6 +277,12 @@
 <ul>
 <li><a href="https://www.rust-lang.org/tools/install">Rust toolchain</a></li>
 <li><a href="https://git-scm.com/">Git version control system</a></li>
+<li>Packages:
+<ul>
+<li>Fedora-based distributions: <code>alsa-lib-devel openssl-devel</code></li>
+<li>Debian-based distributions: <code>librust-alsa-sys-dev libssl-dev</code></li>
+</ul>
+</li>
 </ul>
 <pre><code class="language-sh"># Clone the repository
 git clone https://github.com/squidowl/halloy.git
@@ -277,6 +292,14 @@ cd halloy
 # Build and run
 cargo build --release
 cargo run --release
+</code></pre>
+<h4 id="install-from-source"><a class="header" href="#install-from-source">Install from Source</a></h4>
+<p>The script <code>install-linux.sh</code> in the <code>scripts</code> directory of the Halloy repository will build and install Halloy on Linux systems (with the same requirements as building from source).  By default the script will install Halloy in the <code>~/.local/</code> base directory (i.e. the executable will be put in <code>~/.local/bin/</code>).  To change the installation base directory, provide <code>install-linux.sh</code> with the long flag <nobr><code>--prefix=&lt;base/directory&gt;</code></nobr>.</p>
+<pre><code class="language-sh">git clone https://github.com/squidowl/halloy.git
+
+cd halloy
+
+./scripts/install-linux.sh --prefix=&lt;base/directory&gt;
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="getting-started"><a class="header" href="#getting-started">Getting started</a></h1>
 <p>To get started with Halloy, you need to connect to at least one IRC server. The template config file has been set up with the <a href="https://libera.chat/">Libera</a> server. However, there are many other servers available: <a href="https://www.oftc.net/">OFTC</a>, <a href="https://www.undernet.org/">Undernet</a>, <a href="http://www.efnet.org">EFnet</a>, <a href="https://www.quakenet.org/">QuakeNet</a> and <a href="https://netsplit.de/networks/">many more</a>. Halloy can connect to multiple servers at the same time.</p>
@@ -373,6 +396,21 @@ password = "&lt;your-password&gt;"
 # https://halloy.chat/configuration/servers.html#port
 
 </code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="optional-features"><a class="header" href="#optional-features">Optional Features</a></h1>
+<p>Halloy supports optional features that can be enabled during compilation to add additional functionality. These features are not included by default to keep the binary size small and compilation fast.</p>
+<h2 id="building-with-features"><a class="header" href="#building-with-features">Building with features</a></h2>
+<p>To build Halloy with specific features, use the <code>--features</code> flag:</p>
+<pre><code class="language-bash"># Build with a feature
+cargo build --features tor
+
+# Build release with features
+cargo build --release --features tor
+</code></pre>
+<h2 id="available-features"><a class="header" href="#available-features">Available features</a></h2>
+<h3 id="tor"><a class="header" href="#tor"><code>tor</code></a></h3>
+<p>Enables Tor network support for anonymous IRC connections.
+Not enabled by default.</p>
+<p>See <a href="guides/../configuration/proxy.html#proxytor">Proxy Configuration</a> for usage details.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="portable-mode"><a class="header" href="#portable-mode">Portable mode</a></h1>
 <p>To enable portable mode for Halloy, simply place the <code>config.toml</code> file in the same directory as the running executable.</p>
 <pre><code>.
@@ -513,6 +551,53 @@ use_tls = true
 <p>To migrate, and ensure everything is working, make sure to read through the <a href="guides/../configuration">Configuration</a> section of this book. Here, every configuration option is documented using TOML.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="pronunciation"><a class="header" href="#pronunciation">Pronunciation</a></h1>
 <p>Halloy is an English transliteration of the Danish greeting halløj.  In other words, its pronunciation is close to the way most English speakers would guess based on its spelling. An approximate machine reading can be heard <a href="https://ipa-reader.com/?text=hal%C9%94j&amp;voice=Chantal">via IPA Reader</a>.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="building-for-flatpak"><a class="header" href="#building-for-flatpak">Building for flatpak</a></h1>
+<p>This guide will help you to build and/or test pre-released commits of Halloy
+for flatpak.</p>
+<p>If you haven't done so already, clone the <a href="https://github.com/squidowl/halloy">Halloy repository</a> to
+your local machine.</p>
+<h2 id="requirements"><a class="header" href="#requirements">Requirements</a></h2>
+<ul>
+<li><a href="https://docs.flatpak.org/en/latest/flatpak-builder.html">flatpak-builder</a></li>
+<li><a href="https://github.com/flatpak/flatpak-builder-tools/tree/master/cargo">flatpak-cargo-generator</a></li>
+</ul>
+<p>Be sure to install all the dependencies for the above tools.</p>
+<h2 id="generating-flatpak-build-sources-file"><a class="header" href="#generating-flatpak-build-sources-file">Generating flatpak build sources file</a></h2>
+<p>To generate the <code>generated-sources.json</code> file that is used by the flatpak
+manifest, run the following command:</p>
+<pre><code class="language-bash">python3 &lt;flatpak-builder-tools-path&gt;/cargo/flatpak-cargo-generator.py -o &lt;halloy-checkout-path&gt;/assets/flatpak/generated-sources.json
+</code></pre>
+<h2 id="building-and-installing-flatpak-locally"><a class="header" href="#building-and-installing-flatpak-locally">Building and installing flatpak locally</a></h2>
+<p>Finally, to build and install the flatpak locally, run the following command:</p>
+<pre><code class="language-bash">flatpak-builder --force-clean --user --install-deps-from=flathub --repo=.flatpak-builder/repo --install .flatpak-builder/build &lt;halloy-checkout-path&gt;/assets/flatpak/org.squidowl.halloy.json
+</code></pre>
+<p>Your flatpak should now be built, installed locally and ready for use.</p>
+<p>Happy testing!</p>
+<h2 id="releasing-to-flathub"><a class="header" href="#releasing-to-flathub">Releasing to Flathub</a></h2>
+<p>Halloy's flatpaks are released via <a href="https://github.com/flathub/org.squidowl.halloy/">Flathub</a>.</p>
+<p>Start by cloning the flathub repo for Halloy.
+Every release has two requirements:</p>
+<ol>
+<li>The <code>generated-sources.json</code> file must be up to date. You can generate it
+from the latest release tag via the commands above.</li>
+<li>The flatpak manifest file (<code>org.squidowl.halloy.json</code>) must be updated to
+point to the latest release tag of Halloy.</li>
+</ol>
+<p>The caveat for #2: the version you're wanting to release must be tagged first.
+We use the sha256sum of the tagged tarball in the build manifest.</p>
+<p>For example, for release <code>2025.6</code>, we would need to:</p>
+<pre><code class="language-bash"># Download the tagged tarball
+wget https://github.com/squidowl/halloy/archive/refs/tags/2025.6.tar.gz
+
+# Get the sha256sum of the tarball
+sha256sum 2025.6.tar.gz | awk '{print $1}'
+</code></pre>
+<p>The <code>url</code> and the <code>sha256</code> fields for <code>modules.0.sources.0</code> in the manifest file
+should be updated along with an updated <code>generated-sources.json</code> file. After
+that, you can create a pull request to the <a href="https://github.com/flathub/org.squidowl.halloy/">Flathub repository</a>
+with the updated files.</p>
+<p>See the pull request for the <a href="https://github.com/flathub/org.squidowl.halloy/pull/26">2025.6 release</a> for an
+example.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="configuration-1"><a class="header" href="#configuration-1">Configuration</a></h1>
 <p>To edit configuration parameters, create a <code>config.toml</code> file located in your configuration directory:</p>
 <ul>
@@ -1638,6 +1723,26 @@ include = ["HalloyUser1", "#halloy"]
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="pane"><a class="header" href="#pane"><code>[pane]</code></a></h1>
 <p>Pane settings for Halloy. A pane contains a <a href="configuration/../configuration//buffer.html">buffer</a>.</p>
+<h2 id="scrollbar"><a class="header" href="#scrollbar"><code>scrollbar</code></a></h2>
+<p>Scrollbar configuration.</p>
+<h3 id="width-1"><a class="header" href="#width-1">width</a></h3>
+<p>Width of the scrollbar.</p>
+<pre><code class="language-toml"># Type: integer
+# Values: any positive integer
+# Default: 5
+
+[pane.scrollbar]
+width = 5
+</code></pre>
+<h3 id="width-2"><a class="header" href="#width-2">width</a></h3>
+<p>Width of the scrollbar scroller.</p>
+<pre><code class="language-toml"># Type: integer
+# Values: any positive integer
+# Default: 5
+
+[pane.scrollbar]
+scroller_width = 5
+</code></pre>
 <h2 id="split_axis"><a class="header" href="#split_axis"><code>split_axis</code></a></h2>
 <p>Default axis used when splitting a pane (i.e. default orientation of the divider between panes).</p>
 <pre><code class="language-toml"># Type: string
@@ -1761,8 +1866,13 @@ username = "username"
 password = "password"
 </code></pre>
 <h2 id="proxytor"><a class="header" href="#proxytor"><code>[proxy.tor]</code></a></h2>
-<p>Tor proxy settings. Utilizes the <a href="https://arti.torproject.org/">arti</a> to integrate Tor natively.
+<p>Tor proxy settings. Utilizes <a href="https://arti.torproject.org/">Arti</a> to integrate Tor support directly into Halloy.
 It accepts no further configuration.</p>
+<p><strong>Note:</strong></p>
+<ul>
+<li>Does not integrate into a pre-existing Tor setup.  To utilize an existing Tor daemon, use <a href="configuration/proxy.html#proxysocks5"><code>[proxy.socks5]</code></a> instead.</li>
+<li>Tor support is <strong>not included by default</strong>. You must build Halloy with the <code>tor</code> feature to use this proxy type. See <a href="configuration/../guides/optional-features.html">Optional Features</a> for build instructions.</li>
+</ul>
 <h2 id="example-2"><a class="header" href="#example-2">Example</a></h2>
 <pre><code class="language-toml">[proxy.tor]
 </code></pre>
@@ -2342,6 +2452,26 @@ show_menu_button = true
 [sidebar]
 order_by = "config"
 </code></pre>
+<h2 id="scrollbar-1"><a class="header" href="#scrollbar-1"><code>scrollbar</code></a></h2>
+<p>Scrollbar configuration.</p>
+<h3 id="width-3"><a class="header" href="#width-3">width</a></h3>
+<p>Width of the scrollbar.</p>
+<pre><code class="language-toml"># Type: integer
+# Values: any positive integer
+# Default: 5
+
+[sidebar.scrollbar]
+width = 5
+</code></pre>
+<h3 id="width-4"><a class="header" href="#width-4">width</a></h3>
+<p>Width of the scrollbar scroller.</p>
+<pre><code class="language-toml"># Type: integer
+# Values: any positive integer
+# Default: 5
+
+[sidebar.scrollbar]
+scroller_width = 5
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="themes"><a class="header" href="#themes">Themes</a></h1>
 <h2 id="example-5"><a class="header" href="#example-5">Example</a></h2>
 <pre><code class="language-toml"># Static
@@ -2378,6 +2508,7 @@ theme = "foobar"
 background = "&lt;string&gt;"
 border = "&lt;string&gt;"
 horizontal_rule = "&lt;string&gt;"
+scrollbar = "&lt;string&gt;"
 unread_indicator = "&lt;string&gt;"
 
 [text]
@@ -2562,6 +2693,7 @@ A list of community created themes can be found <a href="./configuration/themes/
             window.setTimeout(window.print, 100);
         });
         </script>
+
 
     </div>
     </body>
