@@ -611,6 +611,43 @@ that, you can create a pull request to the <a href="https://github.com/flathub/o
 with the updated files.</p>
 <p>See the pull request for the <a href="https://github.com/flathub/org.squidowl.halloy/pull/26">2025.6 release</a> for an
 example.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="building-for-macos"><a class="header" href="#building-for-macos">Building for macOS</a></h1>
+<p>This guide explains how to build the Halloy <code>.app</code> for macOS. If you want to install a signed release version of Halloy on macOS, then you should consult the <a href="guides/../installation.html">Installation</a> documentation instead.</p>
+<h2 id="prerequisites"><a class="header" href="#prerequisites">Prerequisites</a></h2>
+<ul>
+<li><strong>macOS 11.0 or later</strong></li>
+<li><a href="https://www.rust-lang.org/tools/install"><strong>Latest Rust toolchain</strong></a></li>
+<li><strong>Xcode Command Line Tools</strong> (<code>xcode-select --install</code> or <a href="https://developer.apple.com/download/all/">https://developer.apple.com/download/all/</a>)</li>
+</ul>
+<h2 id="steps"><a class="header" href="#steps">Steps</a></h2>
+<ol>
+<li>
+<p><strong>Clone the Repository</strong></p>
+<p>If you haven’t already, clone the Halloy repository:</p>
+<pre><code class="language-sh">git clone https://github.com/squidowl/halloy.git
+cd halloy
+</code></pre>
+</li>
+<li>
+<p><strong>Run the Build Script</strong></p>
+<p>Execute the <code>build-macos</code> script:</p>
+<pre><code class="language-sh">./scripts/build-macos.sh
+</code></pre>
+<p>This script will:</p>
+<ul>
+<li>Build the Halloy binary for both <code>x86_64</code> and <code>aarch64</code> architectures.</li>
+<li>Combine them into a universal binary using <code>lipo</code>.</li>
+<li>Copy the binary and resources into a macOS <code>.app</code> bundle template located at <code>assets/macos/Halloy.app</code>.</li>
+<li>Place the <code>.app</code> bundle in <code>target/release/macos</code>.</li>
+</ul>
+</li>
+<li>
+<p><strong>Locate the Built Application</strong></p>
+<p>After the script completes, you’ll find the generated <code>.app</code> bundle at:</p>
+<pre><code>target/release/macos/Halloy.app
+</code></pre>
+</li>
+</ol>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="configuration-1"><a class="header" href="#configuration-1">Configuration</a></h1>
 <p>To edit configuration parameters, create a <code>config.toml</code> file located in your configuration directory:</p>
 <ul>
@@ -731,7 +768,6 @@ focused_buffer = "close-pane"
 <div style="break-before: page; page-break-before: always;"></div><h1 id="buffer-1"><a class="header" href="#buffer-1"><code>[buffer]</code></a></h1>
 <p>Buffer settings for Halloy.</p>
 <ol>
-<li><a href="configuration/buffer.html#bufferaway">Away</a> - Controls the appearance of away nicknames</li>
 <li><a href="configuration/buffer.html#bufferchannel">Channel</a> - Channel specific settings
 <ol>
 <li><a href="configuration/buffer.html#bufferchannelmessage">Message</a> - Message settings within a channel buffer</li>
@@ -752,24 +788,6 @@ focused_buffer = "close-pane"
 <li><a href="configuration/buffer.html#buffertimestamp">Timestamp</a> - Customize how timestamps are displayed within a buffer</li>
 <li><a href="configuration/buffer.html#bufferurl">Url</a> - URLs in buffers</li>
 </ol>
-<h2 id="bufferaway"><a class="header" href="#bufferaway"><code>[buffer.away]</code></a></h2>
-<p>Controls the appearance of away nicknames.</p>
-<h3 id="appearance"><a class="header" href="#appearance"><code>appearance</code></a></h3>
-<p>Controls the appearance of away nicknames in buffers.</p>
-<pre><code class="language-toml"># Type: string or object
-# Values: "dimmed", "solid" or { dimmed = float }
-# Default: "dimmed"
-[buffer.away]
-appearance = "dimmed"
-
-# with custom dimming alpha value (0.0-1.0)
-[buffer.away]
-appearance = { dimmed = 0.5 }
-
-# no away indication
-[buffer.away]
-appearance = "solid"
-</code></pre>
 <h2 id="bufferchannel"><a class="header" href="#bufferchannel"><code>[buffer.channel]</code></a></h2>
 <p>Channel specific settings</p>
 <h3 id="bufferchannelmessage"><a class="header" href="#bufferchannelmessage"><code>[buffer.channel.message]</code></a></h3>
@@ -793,6 +811,22 @@ nickname_color = "unique"
 
 [buffer.channel.nicklist]
 alignment = "left"
+</code></pre>
+<h4 id="away"><a class="header" href="#away"><code>away</code></a></h4>
+<p>Controls the appearance of away nicknames.</p>
+<pre><code class="language-toml"># Type: string or object
+# Values: "dimmed", "none" or { dimmed = float }
+# Default: "dimmed"
+[buffer.channel.nicklist]
+away = "dimmed"
+
+# with custom dimming alpha value (0.0-1.0)
+[buffer.channel.nicklist]
+away = { dimmed = 0.5 }
+
+# no away indication
+[buffer.channel.nicklist]
+away = "none"
 </code></pre>
 <h4 id="color-1"><a class="header" href="#color-1"><code>color</code></a></h4>
 <p>Nickname colors in the nicklist. <code>"unique"</code> generates colors by randomizing the hue, while keeping the saturation and lightness from the theme's nickname color.</p>
@@ -1053,6 +1087,22 @@ on_message_sent = true
 [buffer.nickname]
 alignment = "right"
 </code></pre>
+<h3 id="away-1"><a class="header" href="#away-1"><code>away</code></a></h3>
+<p>Controls the appearance of away nicknames.</p>
+<pre><code class="language-toml"># Type: string or object
+# Values: "dimmed", "none" or { dimmed = float }
+# Default: "dimmed"
+[buffer.nickname]
+away = "dimmed"
+
+# with custom dimming alpha value (0.0-1.0)
+[buffer.nickname]
+away = { dimmed = 0.5 }
+
+# no away indication
+[buffer.nickname]
+away = "none"
+</code></pre>
 <h3 id="brackets"><a class="header" href="#brackets"><code>brackets</code></a></h3>
 <p>Brackets around nicknames.</p>
 <pre><code class="language-toml"># Type: string
@@ -1071,6 +1121,18 @@ brackets = { left = "&lt;", right = "&gt;" }
 [buffer.nickname]
 color = "unique"
 </code></pre>
+<h3 id="offline"><a class="header" href="#offline"><code>offline</code></a></h3>
+<p>Controls the appearance of offline nicknames.</p>
+<pre><code class="language-toml"># Type: string or object
+# Values: "solid" or "none"
+# Default: "solid"
+[buffer.nickname]
+offline = "solid"
+
+# no offline indication
+[buffer.nickname]
+offline = "none"
+</code></pre>
 <h3 id="show_access_levels-1"><a class="header" href="#show_access_levels-1"><code>show_access_levels</code></a></h3>
 <p>Show access levels in front of nicknames (<code>@</code>, <code>+</code>, <code>~</code>, etc.).</p>
 <pre><code class="language-toml"># Type: boolean
@@ -1079,6 +1141,14 @@ color = "unique"
 
 [buffer.nickname]
 show_access_levels = true
+</code></pre>
+<h3 id="shown_status"><a class="header" href="#shown_status"><code>shown_status</code></a></h3>
+<p>What status should be indicated (by either <code>away</code> or <code>offline</code> settings), the user's current status (<code>"current"</code>) or their status at the time of sending the message (<code>"historical"</code>).</p>
+<pre><code class="language-toml"># Type: string or object
+# Values: "current" or "historical"
+# Default: "current"
+[buffer.nickname]
+shown_status = "current"
 </code></pre>
 <h3 id="click-1"><a class="header" href="#click-1"><code>click</code></a></h3>
 <p>Click action for when interaction with nicknames.</p>
@@ -1092,6 +1162,15 @@ show_access_levels = true
 
 [buffer.nickname]
 click = "open-query"
+</code></pre>
+<h3 id="truncate"><a class="header" href="#truncate"><code>truncate</code></a></h3>
+<p>Truncate nicknames in buffer to a maximum length</p>
+<pre><code class="language-toml"># Type: integer
+# Values: any positive integer
+# Default: not set
+
+[buffer.nickname]
+truncate = 10
 </code></pre>
 <h2 id="bufferserver_messages"><a class="header" href="#bufferserver_messages"><code>[buffer.server_messages]</code></a></h2>
 <p>Server messages are messages sent from an IRC server.</p>
